@@ -39,6 +39,8 @@ setup(name='georgedrexler.grant',
           'setuptools',
           'plone.app.dexterity',
           'plone.namedfile [blobs]',
+		  'plone.app.textfield',
+		  'collective.z3cform.datetimewidget'
           # -*- Extra requirements: -*-
       ],
       extras_require={
@@ -54,7 +56,7 @@ setup(name='georgedrexler.grant',
       # The next two lines may be deleted after you no longer need
       # addcontent support from paster and before you distribute
       # your package.
-      setup_requires=["PasteScript"],
+      setup_requires=[],
       paster_plugins=["templer.localcommands"],
 
       )
