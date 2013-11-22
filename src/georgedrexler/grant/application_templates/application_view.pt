@@ -1,0 +1,65 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="rcseng.contenttypes">
+<body>
+
+<metal:main fill-slot="content-core">
+
+  <br/><br/>
+  
+  <div>Applicant Name: <tal:content content="context/first_name" /> <tal:content content="context/surname" /></div>
+  
+  <div>Date of birth: <tal:content content="context/dob" /></div>  
+  <div>Are you a UK citizen? <tal:content content="context/citizen" /></div>
+  <div>Address: <tal:content content="context/address" /></div>
+  <div>Telephone: <tal:content content="context/telephone" /></div>
+  <div>Email: <tal:content content="context/email" /></div>
+  <div>Education: <tal:content content="context/education" /></div>
+  <div>Course: <tal:content content="context/course" /></div>
+  <div>institution: <tal:content content="context/institution" /></div>
+  <div>commencement: <tal:content content="context/commencement" /></div>
+  <div>value_sought: <tal:content content="context/value_sought" /></div>
+  <div>commercial: <tal:content content="context/commercial" /></div>
+  <div>previous_grant: <tal:content content="context/previous_grant" /></div>
+  <div>received_grant_before: <tal:content content="context/received_grant_before" /></div>			
+  <div>detail_additional_app: <tal:content content="context/detail_additional_app" /></div>  
+  <div>statement_text: <tal:content content="context/statement_text" /></div>  
+  
+  <tal:block define="global attachment nocall: context/statement_file;
+                           global size attachment/getSize | nothing;
+                           " />
+  <tal:block tal:condition="python:size > 0" >
+    <tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
+  </tal:block>  
+  
+  <div tal:condition="python:size > 0">
+      <a tal:attributes="href string:${context/absolute_url}/@@download/statement_file/${attachment/filename}">
+                  Pesonal statement (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+      </a>
+      </div>
+	  
+	  
+	  <tal:block define="global attachment nocall: context/reference;
+                           global size attachment/getSize | nothing;
+                           " />
+  <tal:block tal:condition="python:size > 0" >
+    <tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
+  </tal:block>  
+  
+  <div tal:condition="python:size > 0">
+      <a tal:attributes="href string:${context/absolute_url}/@@download/reference/${attachment/filename}">
+                  Reference (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+      </a>
+      </div>
+  
+  <br/><br/>
+  <a href="#"> Edit</a>
+  <a href="#"> Submit</a>
+</metal:main>
+
+</body>
+</html>

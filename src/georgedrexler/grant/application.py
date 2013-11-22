@@ -117,10 +117,12 @@ class IApplication(form.Schema):
         required = False,
 		)	
 		
-	#@button.buttonAndHandler(_(u'Submit'))
-	#def handleSubmission(self, action):
 	
-#			self.status = _(u"Application Submitted")
+
+class Application_View(grok.View):
+    grok.context(IApplication)
+    grok.require('zope2.View')
+    grok.name('view')
 	
 	
 	
