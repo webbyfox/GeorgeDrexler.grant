@@ -1,13 +1,24 @@
 from georgedrexler.grant import MessageFactory as _
 from five import grok
 
+from plone.directives.form import default_value
 from plone.directives import dexterity, form
 from plone.app.textfield import RichText
 from plone.namedfile.field import NamedBlobImage, NamedBlobFile
 
+from z3c.form.interfaces import IEditForm, IAddForm
+
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope import schema
-from zope.schema import Date
+from zope.schema import Date	
+from zope.security import checkPermission
+from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
+from plone.directives.form import default_value
+
+from plone.app.content.interfaces import INameFromTitle
+from rwproperty import getproperty, setproperty
+from zope.interface import implements, Interface
+from zope.component import adapts
 
 import z3c.form 
 from z3c.form import field, button
@@ -117,15 +128,41 @@ class IApplication(form.Schema):
         required = False,
 		)	
 		
-	
 
+	
 class Application_View(grok.View):
     grok.context(IApplication)
     grok.require('zope2.View')
     grok.name('view')
+       
+    def canEdit(self):
+        if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
+           return True
+        return False
 	
+    def canSubmit(self):
+        if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
+           return True
+        return False
 	
+
+@form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
+def excludeFromNavDefaultValue(data):
+    return True
 	
+class IApplicationTitle(INameFromTitle):
+    def title():
+        """Return a processed title"""	
+		
+class ApplicationTitle(object):
+   implements(IApplicationTitle)
+
+   def __init__(self, context):
+       self.context = context
+   
+   @property
+   def title(self):
+       return '%s-%s' % (self.context.surname, self.context.first_name)
 	
 	
 	

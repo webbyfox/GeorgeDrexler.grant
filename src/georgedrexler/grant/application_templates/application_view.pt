@@ -9,25 +9,71 @@
 
 <metal:main fill-slot="content-core">
 
+<style type="text/css">
+.classname {
+	-moz-box-shadow:inset 0px 1px 0px 0px #c1ed9c;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #c1ed9c;
+	box-shadow:inset 0px 1px 0px 0px #c1ed9c;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #9dce2c), color-stop(1, #8cb82b) );
+	background:-moz-linear-gradient( center top, #9dce2c 5%, #8cb82b 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#9dce2c', endColorstr='#8cb82b');
+	background-color:#9dce2c;
+	-webkit-border-top-left-radius:6px;
+	-moz-border-radius-topleft:6px;
+	border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+	-moz-border-radius-topright:6px;
+	border-top-right-radius:6px;
+	-webkit-border-bottom-right-radius:6px;
+	-moz-border-radius-bottomright:6px;
+	border-bottom-right-radius:6px;
+	-webkit-border-bottom-left-radius:6px;
+	-moz-border-radius-bottomleft:6px;
+	border-bottom-left-radius:6px;
+	text-indent:0;
+	border:1px solid #83c41a;
+	display:inline-block;
+	color:#ffffff !important;
+	font-family:Arial;
+	font-size:13px;
+	font-weight:bold;
+	font-style:normal;
+	height:28px;
+	line-height:28px;
+	width:100px;
+	text-decoration:none !important;
+	text-align:center;
+	text-shadow:1px 1px 0px #689324;
+}
+.classname:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #8cb82b), color-stop(1, #9dce2c) );
+	background:-moz-linear-gradient( center top, #8cb82b 5%, #9dce2c 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#8cb82b', endColorstr='#9dce2c');
+	background-color:#8cb82b;
+}.classname:active {
+	position:relative;
+	top:1px;
+}</style>
+
   <br/><br/>
   
-  <div>Applicant Name: <tal:content content="context/first_name" /> <tal:content content="context/surname" /></div>
+  <h5>Applicant Name:</h5> <p tal:content="string:${context/first_name}  ${context/surname}" /> 
   
-  <div>Date of birth: <tal:content content="context/dob" /></div>  
-  <div>Are you a UK citizen? <tal:content content="context/citizen" /></div>
-  <div>Address: <tal:content content="context/address" /></div>
-  <div>Telephone: <tal:content content="context/telephone" /></div>
-  <div>Email: <tal:content content="context/email" /></div>
-  <div>Education: <tal:content content="context/education" /></div>
-  <div>Course: <tal:content content="context/course" /></div>
-  <div>institution: <tal:content content="context/institution" /></div>
-  <div>commencement: <tal:content content="context/commencement" /></div>
-  <div>value_sought: <tal:content content="context/value_sought" /></div>
-  <div>commercial: <tal:content content="context/commercial" /></div>
-  <div>previous_grant: <tal:content content="context/previous_grant" /></div>
-  <div>received_grant_before: <tal:content content="context/received_grant_before" /></div>			
-  <div>detail_additional_app: <tal:content content="context/detail_additional_app" /></div>  
-  <div>statement_text: <tal:content content="context/statement_text" /></div>  
+  <h5>Date of birth:</h5>  <p tal:content="context/dob" /> 
+  <h5>Are you a UK citizen?</h5>  <p tal:content="context/citizen" />
+  <h5>Address:</h5>  <p tal:content="context/address" />
+  <h5>Telephone:</h5>  <p tal:content="context/telephone" />
+  <h5>Email:</h5>  <p tal:content="context/email" /><br/>
+  <h5>Education:</h5>  <p tal:content="context/education" />
+  <h5>Course:</h5>  <p tal:content="context/course" /><br/>
+  <h5>Institution:</h5>  <p tal:content="context/institution" />
+  <h5>Commencement:</h5>  <p tal:content="context/commencement" />
+  <h5>Value sought:</h5>  <p tal:content="context/value_sought" />
+  <h5>Commercial Link:</h5>  <p tal:content="context/commercial" />
+  <h5>Have you received a grant from us before?</h5>  <tal:content content="context/previous_grant" />
+  <h5>If yes, give details. (Years received and amounts awarded):</h5>  <p tal:content="context/received_grant_before" />		
+  <h5>Details of all additional applications pending and awarded:</h5>  <p tal:content="context/detail_additional_app" />
+  <h5>Personal Statement:</h5>  <p tal:content="context/statement_text" />
   
   <tal:block define="global attachment nocall: context/statement_file;
                            global size attachment/getSize | nothing;
@@ -36,6 +82,7 @@
     <tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
   </tal:block>  
   
+  <h5>Personal Statement File:</h5>
   <div tal:condition="python:size > 0">
       <a tal:attributes="href string:${context/absolute_url}/@@download/statement_file/${attachment/filename}">
                   Pesonal statement (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
@@ -49,7 +96,8 @@
   <tal:block tal:condition="python:size > 0" >
     <tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
   </tal:block>  
-  
+  <br/>
+  <h5> Reference File:</h5>
   <div tal:condition="python:size > 0">
       <a tal:attributes="href string:${context/absolute_url}/@@download/reference/${attachment/filename}">
                   Reference (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
@@ -57,9 +105,16 @@
       </div>
   
   <br/><br/>
-  <a href="#"> Edit</a>
-  <a href="#"> Submit</a>
+  <a class="classname" 
+     tal:condition="view/canEdit"
+     tal:attributes="href string:${context/absolute_url}/edit">EDIT</a>
+  
+  <a  tal:condition="view/canSubmit"
+      class="classname"
+      tal:attributes="href string:${context/absolute_url}/content_status_modify?workflow_action=submit">SUBMIT</a>
 </metal:main>
+
+
 
 </body>
 </html>
