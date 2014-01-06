@@ -1,5 +1,8 @@
+from AccessControl.SecurityManagement import getSecurityManager
 from georgedrexler.grant import MessageFactory as _
 from five import grok
+from plone.dexterity.browser.add import DefaultAddForm, DefaultAddView
+
 
 from plone.directives.form import default_value
 from plone.directives import dexterity, form
@@ -25,6 +28,8 @@ from z3c.form import field, button
 
 from DateTime import DateTime
 
+from Products.CMFCore.utils import getToolByName
+
 YNList = SimpleVocabulary(
 	[
 	SimpleTerm(value=None, title=_(u'')),
@@ -34,22 +39,20 @@ YNList = SimpleVocabulary(
 )
 
 
-class IApplication(form.Schema):
-	"""
-	Interface class for application schema
-	"""
 	
+class IApplication(form.Schema):
+	"""	Interface class for application schema
+	
+	"""
 	first_name = schema.TextLine(
 		title =_(u"First name"), 
 		default=u""
-		)
+        )
 	
 	surname = schema.TextLine(
 		title =_(u"Surname"), 
 		default=u""
 		)
-	
-	
 	dob = schema.Date(
 		title=_(u"Date of birth"),
 		)
@@ -72,7 +75,7 @@ class IApplication(form.Schema):
 		)
 	
 	education = schema.Text(
-		title = _(u"Education History (including qualifications)"),
+		title = _(u"Education history (including qualifications)"),
 		)
 	
 	course = schema.TextLine(
@@ -83,16 +86,16 @@ class IApplication(form.Schema):
 		title = _(u"Institution")
 	)
 	
-	commencement = schema.TextLine(
+	commencement = schema.Date(
 		title = _(u"Date of commencement")
 	)
 	
 	value_sought = schema.TextLine(
-		title = _(u"Value of funding sought (\u00A31,000 to \u00A310,000)"),
+		title = _(u"Value of Funding Sought (maximum \u00A310,000)"),
 		)
 	
 	commercial = schema.Choice(
-		title = _(u"Commercial link (see guidance notes)"),
+		title = _(u"Commercial Link (see guidance notes)"),
 		vocabulary = YNList,
 		)
 		
@@ -102,7 +105,7 @@ class IApplication(form.Schema):
 		)
 		
 	received_grant_before = schema.Text(
-		title =_(u"If yes, give details. (Years received and amounts awarded)"),
+		title =_(u"If yes, give details. (years received and amounts awarded)"),
 		required = False,
 		)
 		
@@ -110,31 +113,27 @@ class IApplication(form.Schema):
 		title = _(u"Details of all additional applications pending and awarded"),
 		required = False,
 		)
-	
 	statement_text = schema.Text(
-		title = _(u"Personal statement"),
-		required = False,
-		)
+			title = _(u"Personal statetment"),
+			required = False,
+			)
 	
 	statement_file = NamedBlobFile(
-        title = _(u"Personal statement"),
-        description = _(u"No more than two sides of A4 paper"),
-        required = False,
-		)	
-		
+			title = _(u"Personal statement"),
+			description = _(u"No more than two sides of A4 paper"),
+			required = False,
+				)	
 	reference = NamedBlobFile(
-        title = _(u"Reference"),
+		title = _(u"Reference"),
         description = _(u"No more than two sides of A4 paper"),
         required = False,
 		)	
-		
-
+	
 	
 class Application_View(grok.View):
     grok.context(IApplication)
     grok.require('zope2.View')
     grok.name('view')
-	enable_form_tabbing = False
        
     def canEdit(self):
         if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
@@ -150,27 +149,26 @@ class Application_View(grok.View):
 @form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
 def excludeFromNavDefaultValue(data):
     return True
-	
-class IApplicationTitle(INameFromTitle):
-    def title():
-        """Return a processed title"""	
-		
-class ApplicationTitle(object):
-   implements(IApplicationTitle)
 
-   def __init__(self, context):
-       self.context = context
+	
+# class AddForm(form.AddForm):
+	# grok.context('IApplication')
+	# grok.name('georgedrexler.grants.application')
+	# def get_user_type(user = getSecurityManager().getUser()):
    
-   @property
-   def title(self):
-       return '%s-%s' % (self.context.surname, self.context.first_name)
+    # mt = getToolByName(self.context, 'portal_membership')
+    # user = mt.getMemberById(user)
+    # return user.getProperty('user_type')
 	
-	
-	
-	
-	
-	
-	
+	# def updateWidgets(self):
+		# super(AddForm, self).updateWidgets()
+		
+		# self.widgets["statement_file"].mode = z3c.form.interfaces.HIDDEN_MODE
+		# self.widgets["statement_text"].mode = z3c.form.interfaces.HIDDEN_MODE
+		# self.widgets["reference"].mode = z3c.form.interfaces.HIDDEN_MODE
+
+# class AddView(DefaultAddView):
+	# form = AddForm
 	
 	
 	
