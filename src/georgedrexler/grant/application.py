@@ -40,7 +40,7 @@ class IApplication(form.Schema):
 	"""
 	
 	first_name = schema.TextLine(
-		title =_(u"First Name"), 
+		title =_(u"First name"), 
 		default=u""
 		)
 	
@@ -51,7 +51,7 @@ class IApplication(form.Schema):
 	
 	
 	dob = schema.Date(
-		title=_(u"Date of Birth"),
+		title=_(u"Date of birth"),
 		)
     
 	citizen = schema.Choice(
@@ -64,35 +64,35 @@ class IApplication(form.Schema):
 		)
 		
 	telephone = schema.Int(
-		title=_(u"Telephone Number")
+		title=_(u"Telephone number")
 		)
 		
 	email = schema.TextLine(
-		title=_(u"Email Address"),
+		title=_(u"Email address"),
 		)
 	
 	education = schema.Text(
-		title = _(u"Education History (including Qualifications)"),
+		title = _(u"Education History (including qualifications)"),
 		)
 	
 	course = schema.TextLine(
-		title = _(u"Course Title")
+		title = _(u"Course title")
 	)
 	
 	institution = schema.TextLine(
 		title = _(u"Institution")
 	)
 	
-	commencement = schema.Date(
+	commencement = schema.TextLine(
 		title = _(u"Date of commencement")
 	)
 	
 	value_sought = schema.TextLine(
-		title = _(u"Value of Funding Sought (maximum \u00A310,000)"),
+		title = _(u"Value of funding sought (\u00A31,000 to \u00A310,000)"),
 		)
 	
 	commercial = schema.Choice(
-		title = _(u"Commercial Link (see guidence notes)"),
+		title = _(u"Commercial link (see guidance notes)"),
 		vocabulary = YNList,
 		)
 		
@@ -102,7 +102,7 @@ class IApplication(form.Schema):
 		)
 		
 	received_grant_before = schema.Text(
-		title =_(u"If yes, give details. (Years received and amounts awarded"),
+		title =_(u"If yes, give details. (Years received and amounts awarded)"),
 		required = False,
 		)
 		
@@ -112,12 +112,12 @@ class IApplication(form.Schema):
 		)
 	
 	statement_text = schema.Text(
-		title = _(u"Personal Satetment"),
+		title = _(u"Personal statement"),
 		required = False,
 		)
 	
 	statement_file = NamedBlobFile(
-        title = _(u"Personal Statement"),
+        title = _(u"Personal statement"),
         description = _(u"No more than two sides of A4 paper"),
         required = False,
 		)	
@@ -134,6 +134,7 @@ class Application_View(grok.View):
     grok.context(IApplication)
     grok.require('zope2.View')
     grok.name('view')
+	enable_form_tabbing = False
        
     def canEdit(self):
         if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
