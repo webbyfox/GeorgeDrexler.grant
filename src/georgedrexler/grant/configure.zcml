@@ -27,5 +27,13 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 	
-	
+  <adapter
+       for="Products.CMFCore.interfaces.IFolderish
+             Products.CMFDefault.interfaces.ICMFDefaultSkin
+            plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".application.AddView"
+        name="gerogedrexler.grants.application.AddView"
+        />
+		
 </configure>

@@ -22,10 +22,9 @@ from plone.app.content.interfaces import INameFromTitle
 from rwproperty import getproperty, setproperty
 from zope.interface import implements, Interface
 from zope.component import adapts
-
 import z3c.form 
 from z3c.form import field, button
-
+from z3c.form import interfaces
 from DateTime import DateTime
 
 from Products.CMFCore.utils import getToolByName
@@ -122,7 +121,8 @@ class IApplication(form.Schema):
 			title = _(u"Personal statement"),
 			description = _(u"No more than two sides of A4 paper"),
 			required = False,
-				)	
+			)
+		
 	reference = NamedBlobFile(
 		title = _(u"Reference"),
         description = _(u"No more than two sides of A4 paper"),
@@ -150,25 +150,50 @@ class Application_View(grok.View):
 def excludeFromNavDefaultValue(data):
     return True
 
+
 	
-# class AddForm(form.AddForm):
-	# grok.context('IApplication')
-	# grok.name('georgedrexler.grants.application')
-	# def get_user_type(user = getSecurityManager().getUser()):
+# class MyAppView(form.AddForm):
+	# grok.context(IApplication)
+	# grok.require('zope2.View')
+
+	# #grok.name('georgedrexler.grants.application')
+	# # def get_user_type(user = getSecurityManager().getUser()):
    
-    # mt = getToolByName(self.context, 'portal_membership')
-    # user = mt.getMemberById(user)
-    # return user.getProperty('user_type')
+    # # mt = getToolByName(self.context, 'portal_membership')
+    # # user = mt.getMemberById(user)
+    # # return user.getProperty('user_type')
 	
 	# def updateWidgets(self):
 		# super(AddForm, self).updateWidgets()
 		
 		# self.widgets["statement_file"].mode = z3c.form.interfaces.HIDDEN_MODE
-		# self.widgets["statement_text"].mode = z3c.form.interfaces.HIDDEN_MODE
+		# self.widgets["statement_text"].mode = z3c.form.interfaces.HIDDEN_MODEc
 		# self.widgets["reference"].mode = z3c.form.interfaces.HIDDEN_MODE
+	
+class AddForm(DefaultAddForm):
+	
 
-# class AddView(DefaultAddView):
-	# form = AddForm
+	def updateWidgets(self):
+		super(AddForm, self).updateWidgets()
+		
+		user = self.request.AUTHENTICATED_USER
+		#mt = getToolByName(self.context, 'portal_membership')
+		#user = mt.getMemberById(user)
+		#import pdb;
+		#pdb.set_trace()
+		
+		if user:
+			user_type = user.getProperty('user_type')
+		    
+			if user_type == 'Individual':
+				self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
+
+			if user_type == 'Medical School':
+				self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
+				self.widgets["reference"].mode = interfaces.HIDDEN_MODE
+
+class AddView(DefaultAddView):
+	form = AddForm
 	
 	
 	
