@@ -26,15 +26,6 @@
       description="Extension profile for "
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
-
-  <!-- -*- extra stuff goes here -*- -->
-  <plone:behavior 
-    title="Application"
-	description="blah blah"
-    for=".application.IApplication"
-    provides=".application.IApplicationTitle"
-    factory=".application.ApplicationTitle"
-    />
 	
 	
 </configure>
