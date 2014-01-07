@@ -2,7 +2,7 @@ from AccessControl.SecurityManagement import getSecurityManager
 from georgedrexler.grant import MessageFactory as _
 from five import grok
 from plone.dexterity.browser.add import DefaultAddForm, DefaultAddView
-
+from plone.dexterity.browser.edit import DefaultEditForm, DefaultEditView
 
 from plone.directives.form import default_value
 from plone.directives import dexterity, form
@@ -65,7 +65,7 @@ class IApplication(form.Schema):
 		title=_(u"Address:"),
 		)
 		
-	telephone = schema.Int(
+	telephone = schema.TextLine(
 		title=_(u"Telephone number")
 		)
 		
@@ -129,38 +129,34 @@ class IApplication(form.Schema):
         required = False,
 		)	
 	
-
+	
 class Application_View(grok.View):
-	grok.context(IApplication)
-	grok.require('zope2.View')
-	grok.name('view')
+    grok.context(IApplication)
+    grok.require('zope2.View')
+    grok.name('view')
+       
+    def canEdit(self):
+        if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
+           return True
+        return False
 	
-	def canEdit(self):
-		if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
-			return True
-		return False
+    def canSubmit(self):
+        if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
+           return True
+        return False
 	
-	def canSubmit(self):
-		if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
-			return True
-		return False
 	
-
 @form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
 def excludeFromNavDefaultValue(data):
-	return True
-
+    return True
 
 class AddForm(DefaultAddForm):
 	
-	
+
 	def updateWidgets(self):
 		super(AddForm, self).updateWidgets()
 		
-		#IExcludeFromNavigation.widgets['exclude_from_nav'].mode = interfaces.HIDDEN_MODE
-		
 		user = self.request.AUTHENTICATED_USER
-			
 		if user:
 			user_type = user.getProperty('user_type')
 		    
@@ -171,9 +167,28 @@ class AddForm(DefaultAddForm):
 				self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
 				self.widgets["reference"].mode = interfaces.HIDDEN_MODE
 
+class EditForm(DefaultEditForm):
+	grok.context(IApplication)
+
+	def updateWidgets(self):
+		super(EditForm, self).updateWidgets()
+		
+		user = self.request.AUTHENTICATED_USER
+		if user:
+			user_type = user.getProperty('user_type')
+		    
+			if user_type == 'Individual':
+				self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
+
+			if user_type == 'Medical School':
+				self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
+				self.widgets["reference"].mode = interfaces.HIDDEN_MODE				
+				
 class AddView(DefaultAddView):
 	form = AddForm
-	
+
+class EditView(DefaultEditView):
+	form = EditForm
 	
 	
 	

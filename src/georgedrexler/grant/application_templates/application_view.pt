@@ -4,7 +4,7 @@
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       lang="en"
       metal:use-macro="context/main_template/macros/master"
-      i18n:domain="rcseng.contenttypes">
+      i18n:domain="georgedrexler.grant">
 <body>
 
 <metal:main fill-slot="content-core">
@@ -57,6 +57,8 @@
 
   <br/><br/>
   
+  <tal:define define="global user_type python:context.REQUEST.AUTHENTICATED_USER.getProperty('user_type') "/>
+  
   <h5>Applicant Name:</h5> <p tal:content="string:${context/first_name}  ${context/surname}" /> 
   
   <h5>Date of birth:</h5>  <p tal:content="context/dob" /> 
@@ -71,42 +73,54 @@
   <h5>Value sought:</h5>  <p tal:content="context/value_sought" />
   <h5>Commercial Link:</h5>  <p tal:content="context/commercial" />
   <h5>Have you received a grant from us before?</h5>  <tal:content content="context/previous_grant" />
-  <h5>If yes, give details. (Years received and amounts awarded):</h5>  <p tal:content="context/received_grant_before" />		
+  <h5>If yes, give details. (Years received and amounts awarded):</h5>  <p tal:content="context/received_grant_before" />	
+  
   <h5>Details of all additional applications pending and awarded:</h5>  <p tal:content="context/detail_additional_app" />
-  <h5>Personal Statement:</h5>  <p tal:content="context/statement_text" />
+
+  <span tal:condition="python:user_type=='Individual'" >
+	<h5>Personal Statement:</h5>  <p tal:content="context/statement_text" />
+  </span>
   
-  <tal:block define="global attachment nocall: context/statement_file;
-                           global size attachment/getSize | nothing;
-                           " />
-  <tal:block tal:condition="python:size > 0" >
-    <tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
-  </tal:block>  
-  
-  <h5>Personal Statement File:</h5>
-  <div tal:condition="python:size > 0">
-      <a tal:attributes="href string:${context/absolute_url}/@@download/statement_file/${attachment/filename}">
-                  Pesonal statement (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
-      </a>
-      </div>
+  <span tal:condition="python:user_type=='Medical School'" >
+	  <tal:block define="global attachment nocall: context/statement_file;
+							   global size attachment/getSize | nothing;
+							   " />
+	  <tal:block tal:condition="python:size > 0" >
+		<tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
+	  </tal:block>  
 	  
 	  
-	  <tal:block define="global attachment nocall: context/reference;
-                           global size attachment/getSize | nothing;
-                           " />
-  <tal:block tal:condition="python:size > 0" >
-    <tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
-  </tal:block>  
-  <br/>
-  <h5> Reference File:</h5>
-  <div tal:condition="python:size > 0">
-      <a tal:attributes="href string:${context/absolute_url}/@@download/reference/${attachment/filename}">
-                  Reference (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
-      </a>
-      </div>
+
+	  <h5>Personal Statement File:</h5>
+	  <div tal:condition="python:size > 0">
+		  <a tal:attributes="href string:${context/absolute_url}/@@download/statement_file/${attachment/filename}">
+					  <span tal:content="string:${attachment/filename}"/> (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+		  </a>
+		  </div>
+		  
+	</span> 
+	<span tal:condition="python:user_type=='Individual'" >
+		  <tal:block define="global attachment nocall: context/reference;
+							   global size attachment/getSize | nothing;
+							   " />
+	  <tal:block tal:condition="python:size > 0" >
+		<tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
+	  </tal:block>  
+	  <br/>
+
   
-  <br/><br/>
+  
+	  <h5> Reference File:</h5>
+	  <div tal:condition="python:size > 0">
+		  <a tal:attributes="href string:${context/absolute_url}/@@download/reference/${attachment/filename}">
+					  <span tal:content="string:${attachment/filename}"/>  (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+		  </a>
+		  </div>
+	   </span>
+	  <br/><br/>
+ 
   <a class="classname" 
-     tal:condition="view/canEdit"
+     
      tal:attributes="href string:${context/absolute_url}/edit">EDIT</a>
   
   <a  tal:condition="view/canSubmit"
