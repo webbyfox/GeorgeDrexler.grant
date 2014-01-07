@@ -16,12 +16,14 @@ from zope import schema
 from zope.schema import Date	
 from zope.security import checkPermission
 from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
+from plone.app.content.interfaces import INameFromTitle
 from plone.directives.form import default_value
 
 from plone.app.content.interfaces import INameFromTitle
 from rwproperty import getproperty, setproperty
 from zope.interface import implements, Interface
 from zope.component import adapts
+
 import z3c.form 
 from z3c.form import field, button
 from z3c.form import interfaces
@@ -129,7 +131,6 @@ class IApplication(form.Schema):
         required = False,
 		)	
 	
-	
 class Application_View(grok.View):
     grok.context(IApplication)
     grok.require('zope2.View')
@@ -144,11 +145,13 @@ class Application_View(grok.View):
         if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
            return True
         return False
+		
 	
 	
 @form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
 def excludeFromNavDefaultValue(data):
     return True
+
 
 @form.validator(field = IApplication['citizen'])
 def validateCitizenShip(value):
@@ -157,7 +160,7 @@ def validateCitizenShip(value):
 	"""
 	if value == 'No':
 		raise Invalid(_(u"You must be UK citizen to be eligible."))
-		
+
 class AddForm(DefaultAddForm):
 	
 
