@@ -150,6 +150,14 @@ class Application_View(grok.View):
 def excludeFromNavDefaultValue(data):
     return True
 
+@form.validator(field = IApplication['citizen'])
+def validateCitizenShip(value):
+	"""	Validate citizen ship of application. If not UK citizen then not allow to submit
+	
+	"""
+	if value == 'No':
+		raise Invalid(_(u"You must be UK citizen to be eligible."))
+		
 class AddForm(DefaultAddForm):
 	
 
