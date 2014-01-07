@@ -129,59 +129,38 @@ class IApplication(form.Schema):
         required = False,
 		)	
 	
-	
+
 class Application_View(grok.View):
-    grok.context(IApplication)
-    grok.require('zope2.View')
-    grok.name('view')
-       
-    def canEdit(self):
-        if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
-           return True
-        return False
+	grok.context(IApplication)
+	grok.require('zope2.View')
+	grok.name('view')
 	
-    def canSubmit(self):
-        if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
-           return True
-        return False
+	def canEdit(self):
+		if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
+			return True
+		return False
+	
+	def canSubmit(self):
+		if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
+			return True
+		return False
 	
 
 @form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
 def excludeFromNavDefaultValue(data):
-    return True
+	return True
 
 
-	
-# class MyAppView(form.AddForm):
-	# grok.context(IApplication)
-	# grok.require('zope2.View')
-
-	# #grok.name('georgedrexler.grants.application')
-	# # def get_user_type(user = getSecurityManager().getUser()):
-   
-    # # mt = getToolByName(self.context, 'portal_membership')
-    # # user = mt.getMemberById(user)
-    # # return user.getProperty('user_type')
-	
-	# def updateWidgets(self):
-		# super(AddForm, self).updateWidgets()
-		
-		# self.widgets["statement_file"].mode = z3c.form.interfaces.HIDDEN_MODE
-		# self.widgets["statement_text"].mode = z3c.form.interfaces.HIDDEN_MODEc
-		# self.widgets["reference"].mode = z3c.form.interfaces.HIDDEN_MODE
-	
 class AddForm(DefaultAddForm):
 	
-
+	
 	def updateWidgets(self):
 		super(AddForm, self).updateWidgets()
 		
-		user = self.request.AUTHENTICATED_USER
-		#mt = getToolByName(self.context, 'portal_membership')
-		#user = mt.getMemberById(user)
-		#import pdb;
-		#pdb.set_trace()
+		#IExcludeFromNavigation.widgets['exclude_from_nav'].mode = interfaces.HIDDEN_MODE
 		
+		user = self.request.AUTHENTICATED_USER
+			
 		if user:
 			user_type = user.getProperty('user_type')
 		    
