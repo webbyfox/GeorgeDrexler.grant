@@ -26,7 +26,7 @@ import z3c.form
 from z3c.form import field, button
 from z3c.form import interfaces
 from DateTime import DateTime
-
+from zope.interface import Invalid
 from Products.CMFCore.utils import getToolByName
 
 YNList = SimpleVocabulary(
