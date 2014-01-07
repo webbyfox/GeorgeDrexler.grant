@@ -16,17 +16,19 @@ from zope import schema
 from zope.schema import Date	
 from zope.security import checkPermission
 from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
+from plone.app.content.interfaces import INameFromTitle
 from plone.directives.form import default_value
 
 from plone.app.content.interfaces import INameFromTitle
 from rwproperty import getproperty, setproperty
 from zope.interface import implements, Interface
 from zope.component import adapts
+
 import z3c.form 
 from z3c.form import field, button
 from z3c.form import interfaces
 from DateTime import DateTime
-
+from zope.interface import Invalid
 from Products.CMFCore.utils import getToolByName
 
 YNList = SimpleVocabulary(
@@ -129,6 +131,14 @@ class IApplication(form.Schema):
         required = False,
 		)	
 	
+
+# class Application(grok.Adapter):
+	# grok.context(IApplication)
+	# grok.provides(INameFromTitle)
+	
+	# @property
+	# def title(self):
+		# return self.context.surname + '-' + self.context.first_name
 	
 class Application_View(grok.View):
     grok.context(IApplication)
@@ -144,11 +154,27 @@ class Application_View(grok.View):
         if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
            return True
         return False
+		
 	
 	
 @form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
 def excludeFromNavDefaultValue(data):
     return True
+
+# @form.default_value(field = INameFromTitle['title'])
+# def titleDefaultValue(self):
+	# """Adding title to application
+	# """
+	# return self.surname + '-' + self.first_name
+	
+		
+@form.validator(field = IApplication['citizen'])
+def validateCitizenShip(value):
+	"""	Validate citizen ship of application. If not UK citizen then not allow to submit
+	"""
+	if value == 'No':
+		raise Invalid(_(u"You must be UK citizen to be eligible."))
+	
 
 class AddForm(DefaultAddForm):
 	

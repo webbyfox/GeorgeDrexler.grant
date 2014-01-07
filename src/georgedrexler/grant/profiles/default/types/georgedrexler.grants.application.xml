@@ -19,7 +19,8 @@
   
 
   <property name="behaviors">
-    <element value="plone.app.content.interfaces.INameFromTitle" />   
+    <!--<element value="plone.app.content.interfaces.INameFromTitle" />   -->
+	<element value="georgedrexler.grant.interfaces.ITitleForApplication" /> 
     <element value="plone.app.dexterity.behaviors.exclfromnav.IExcludeFromNavigation"/>
    </property>
 
