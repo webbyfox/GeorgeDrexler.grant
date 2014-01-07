@@ -2,7 +2,7 @@ from AccessControl.SecurityManagement import getSecurityManager
 from georgedrexler.grant import MessageFactory as _
 from five import grok
 from plone.dexterity.browser.add import DefaultAddForm, DefaultAddView
-
+from plone.dexterity.browser.edit import DefaultEditForm, DefaultEditView
 
 from plone.directives.form import default_value
 from plone.directives import dexterity, form
@@ -65,7 +65,7 @@ class IApplication(form.Schema):
 		title=_(u"Address:"),
 		)
 		
-	telephone = schema.Int(
+	telephone = schema.TextLine(
 		title=_(u"Telephone number")
 		)
 		
@@ -145,7 +145,7 @@ class Application_View(grok.View):
            return True
         return False
 	
-
+	
 @form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
 def excludeFromNavDefaultValue(data):
     return True
@@ -167,9 +167,28 @@ class AddForm(DefaultAddForm):
 				self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
 				self.widgets["reference"].mode = interfaces.HIDDEN_MODE
 
+class EditForm(DefaultEditForm):
+	grok.context(IApplication)
+
+	def updateWidgets(self):
+		super(EditForm, self).updateWidgets()
+		
+		user = self.request.AUTHENTICATED_USER
+		if user:
+			user_type = user.getProperty('user_type')
+		    
+			if user_type == 'Individual':
+				self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
+
+			if user_type == 'Medical School':
+				self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
+				self.widgets["reference"].mode = interfaces.HIDDEN_MODE				
+				
 class AddView(DefaultAddView):
 	form = AddForm
-	
+
+class EditView(DefaultEditView):
+	form = EditForm
 	
 	
 	
