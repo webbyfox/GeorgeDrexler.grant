@@ -150,26 +150,6 @@ class Application_View(grok.View):
 def excludeFromNavDefaultValue(data):
     return True
 
-
-	
-# class MyAppView(form.AddForm):
-	# grok.context(IApplication)
-	# grok.require('zope2.View')
-
-	# #grok.name('georgedrexler.grants.application')
-	# # def get_user_type(user = getSecurityManager().getUser()):
-   
-    # # mt = getToolByName(self.context, 'portal_membership')
-    # # user = mt.getMemberById(user)
-    # # return user.getProperty('user_type')
-	
-	# def updateWidgets(self):
-		# super(AddForm, self).updateWidgets()
-		
-		# self.widgets["statement_file"].mode = z3c.form.interfaces.HIDDEN_MODE
-		# self.widgets["statement_text"].mode = z3c.form.interfaces.HIDDEN_MODEc
-		# self.widgets["reference"].mode = z3c.form.interfaces.HIDDEN_MODE
-	
 class AddForm(DefaultAddForm):
 	
 
@@ -177,11 +157,6 @@ class AddForm(DefaultAddForm):
 		super(AddForm, self).updateWidgets()
 		
 		user = self.request.AUTHENTICATED_USER
-		#mt = getToolByName(self.context, 'portal_membership')
-		#user = mt.getMemberById(user)
-		#import pdb;
-		#pdb.set_trace()
-		
 		if user:
 			user_type = user.getProperty('user_type')
 		    
