@@ -131,15 +131,6 @@ class IApplication(form.Schema):
         required = False,
 		)	
 	
-
-# class Application(grok.Adapter):
-	# grok.context(IApplication)
-	# grok.provides(INameFromTitle)
-	
-	# @property
-	# def title(self):
-		# return self.context.surname + '-' + self.context.first_name
-	
 class Application_View(grok.View):
     grok.context(IApplication)
     grok.require('zope2.View')
@@ -161,20 +152,14 @@ class Application_View(grok.View):
 def excludeFromNavDefaultValue(data):
     return True
 
-# @form.default_value(field = INameFromTitle['title'])
-# def titleDefaultValue(self):
-	# """Adding title to application
-	# """
-	# return self.surname + '-' + self.first_name
-	
-		
+
 @form.validator(field = IApplication['citizen'])
 def validateCitizenShip(value):
 	"""	Validate citizen ship of application. If not UK citizen then not allow to submit
+	
 	"""
 	if value == 'No':
 		raise Invalid(_(u"You must be UK citizen to be eligible."))
-	
 
 class AddForm(DefaultAddForm):
 	
