@@ -75,7 +75,7 @@
 	  <br/><br/>
  
   <a class="button" 
-     
+     tal:condition="view/canEdit"
      tal:attributes="href string:${context/absolute_url}/edit"><span>Edit</span></a>
   
   <a  tal:condition="view/canSubmit"
