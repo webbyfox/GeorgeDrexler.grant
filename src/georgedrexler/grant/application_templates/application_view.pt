@@ -75,12 +75,13 @@
 	  <br/><br/>
  
   <a class="button" 
-     
-     tal:attributes="href string:${context/absolute_url}/edit">EDIT</a>
+     tal:condition="view/canEdit"
+     tal:attributes="href string:${context/absolute_url}/edit"><span>Edit</span></a>
   
   <a  tal:condition="view/canSubmit"
       class="button"
-      tal:attributes="href string:${context/absolute_url}/content_status_modify?workflow_action=submit">SUBMIT</a>
+      tal:attributes="href string:${context/absolute_url}/content_status_modify?workflow_action=submit"><span>Submit</span></a>
+
 </metal:main>
 
 
