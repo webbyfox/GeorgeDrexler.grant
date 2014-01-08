@@ -39,5 +39,6 @@
   <adapter for="georgedrexler.grant.application.IApplication"
          factory=".behaviors.TitleForApplication"
          provides=".behaviors.ITitleForApplication"
-         />		
+         />	
+
 </configure>

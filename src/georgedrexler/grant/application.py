@@ -18,18 +18,27 @@ from zope.security import checkPermission
 from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
 from plone.app.content.interfaces import INameFromTitle
 from plone.directives.form import default_value
+from plone.dexterity.interfaces import IDexterityFTI
 
+from Acquisition import aq_inner, aq_base
 from plone.app.content.interfaces import INameFromTitle
 from rwproperty import getproperty, setproperty
 from zope.interface import implements, Interface
 from zope.component import adapts
-
+from zope.component import getUtility, createObject
 import z3c.form 
 from z3c.form import field, button
 from z3c.form import interfaces
 from DateTime import DateTime
 from zope.interface import Invalid
 from Products.CMFCore.utils import getToolByName
+from Products.statusmessages.interfaces import IStatusMessage
+from zope.event import notify
+from plone.dexterity.events import AddCancelledEvent
+from plone.dexterity.utils import addContentToContainer
+
+from AccessControl import getSecurityManager
+
 
 YNList = SimpleVocabulary(
 	[
@@ -38,8 +47,6 @@ YNList = SimpleVocabulary(
 	SimpleTerm(value=u'No', title=_(u'No')),
 	]
 )
-
-
 	
 class IApplication(form.Schema):
 	"""	Interface class for application schema
@@ -87,7 +94,7 @@ class IApplication(form.Schema):
 		title = _(u"Institution")
 	)
 	
-	commencement = schema.Date(
+	commencement = schema.TextLine(
 		title = _(u"Date of commencement")
 	)
 	
@@ -125,12 +132,28 @@ class IApplication(form.Schema):
 			required = False,
 			)
 		
-	reference = NamedBlobFile(
+	reference_file = NamedBlobFile(
 		title = _(u"Reference"),
         description = _(u"No more than two sides of A4 paper"),
         required = False,
 		)	
 	
+class AuthenticatedUser:
+	def __init__(self):
+		self.user = getSecurityManager().getUser()
+		if self.user:
+			self.user_type = self.user.getProperty('user_type').lower()
+		
+	def isIndividual(self):
+		if self.user_type == 'Individual'.lower():
+			return True
+		return False
+
+	def isMedicalSchool(self):
+		if self.user_type == 'Medical School'.lower():
+			return True
+		return False		
+		
 class Application_View(grok.View):
     grok.context(IApplication)
     grok.require('zope2.View')
@@ -145,13 +168,10 @@ class Application_View(grok.View):
         if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
            return True
         return False
-		
-	
 	
 @form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
 def excludeFromNavDefaultValue(data):
     return True
-
 
 @form.validator(field = IApplication['citizen'])
 def validateCitizenShip(value):
@@ -159,41 +179,100 @@ def validateCitizenShip(value):
 	
 	"""
 	if value == 'No':
-		raise Invalid(_(u"You must be UK citizen to be eligible."))
+		raise Invalid(_(u"You must be UK citizen to be eligible"))
 
-class AddForm(DefaultAddForm):
+@form.validator(field = IApplication['commercial'])
+def validatecommercial(value):
+	"""	Validate commercial link
 	
+	"""
+	if value == 'No':
+		raise Invalid(_(u"You must link to commercial business to be eligible"))
+	
+@form.validator(field = IApplication['statement_text'])
+def validateStatementText(value):
+	"""	Validate Statement Text text area for Individual User
+	
+	"""
+	user = AuthenticatedUser()
+	if user.isIndividual() and not value:
+		raise Invalid(_(u"Dummy Message"))
 
+# @form.validator(field = IApplication['reference_file'])
+# def validateReferenceFile(value):
+	# """	Validate reference file field
+	
+	# """
+	# import pdb; pdb.set_trace()
+	
+	# user = AuthenticatedUser()
+	# if user.isIndividual() and not value:
+		# raise Invalid(_(u"Dummy Message for ref"))
+	
+	
+class AddForm(DefaultAddForm):	
+    
+	immediate_view = 'applying-for-funding/online-application'
+	
+	def add(self, object):
+        
+		fti = getUtility(IDexterityFTI, name=self.portal_type)
+		container = aq_inner(self.context)
+		new_object = addContentToContainer(container, object)
+        
+		if fti.immediate_view:
+			self.immediate_view = "%s/%s" % (container.absolute_url(), self.immediate_view,)
+		else:
+			self.immediate_view = "%s/%s" % (container.absolute_url(), new_object.id)
+
+	def nextURL(self):
+		return self.immediate_view
+		
+	@button.buttonAndHandler(_('Save'), name='save')
+	def handleAdd(self, action):
+		data, errors = self.extractData()
+		if errors:
+			self.status = self.formErrorsMessage
+			return
+		obj = self.createAndAdd(data)
+		if obj is not None:
+			# mark only as finished if we get the new object
+			self._finishedAdd = True
+			IStatusMessage(self.request).addStatusMessage(_(u"Please review your application and submit when ready"), "info")
+			self.request.response.redirect(self.nextURL())
+
+	@button.buttonAndHandler(_(u'Cancel'), name='cancel')
+	def handleCancel(self, action):
+		IStatusMessage(self.request).addStatusMessage(_(u"Add New Item operation cancelled"), "info")
+		self.request.response.redirect(self.nextURL())
+		notify(AddCancelledEvent(self.context))
+				
 	def updateWidgets(self):
 		super(AddForm, self).updateWidgets()
-		
-		user = self.request.AUTHENTICATED_USER
-		if user:
-			user_type = user.getProperty('user_type')
-		    
-			if user_type == 'Individual':
-				self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
+		user = AuthenticatedUser()
 
-			if user_type == 'Medical School':
-				self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
-				self.widgets["reference"].mode = interfaces.HIDDEN_MODE
+		if user.isIndividual():
+			self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
 
+		if user.isMedicalSchool():
+			self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
+			self.widgets["reference"].mode = interfaces.HIDDEN_MODE			 
+
+	
 class EditForm(DefaultEditForm):
 	grok.context(IApplication)
-
 	def updateWidgets(self):
 		super(EditForm, self).updateWidgets()
-		
-		user = self.request.AUTHENTICATED_USER
-		if user:
-			user_type = user.getProperty('user_type')
-		    
-			if user_type == 'Individual':
-				self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
+		user = AuthenticatedUser()
 
-			if user_type == 'Medical School':
-				self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
-				self.widgets["reference"].mode = interfaces.HIDDEN_MODE				
+		if user.isIndividual():
+			self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
+
+		if user.isMedicalSchool():
+			self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
+			self.widgets["reference"].mode = interfaces.HIDDEN_MODE			 
+	
+				
 				
 class AddView(DefaultAddView):
 	form = AddForm

@@ -12,11 +12,12 @@
 
   <br/><br/>
   
-  <tal:define define="global user_type python:context.REQUEST.AUTHENTICATED_USER.getProperty('user_type') "/>
+  <tal:define define="global user_type python:context.REQUEST.AUTHENTICATED_USER.getProperty('user_type') ;
+                      global DateTime python:modules['DateTime'].DateTime" />
   
   <h5>Applicant Name:</h5> <p tal:content="string:${context/first_name}  ${context/surname}" /> 
   
-  <h5>Date of birth:</h5>  <p tal:content="context/dob" /> 
+  <h5>Date of birth:</h5>  <p tal:content="python:DateTime(str(context.dob)).strftime('%d %B %Y')" /> 
   <h5>Are you a UK citizen?</h5>  <p tal:content="context/citizen" />
   <h5>Address:</h5>  <p tal:content="context/address" />
   <h5>Telephone:</h5>  <p tal:content="context/telephone" />
@@ -55,7 +56,7 @@
 		  
 	</span> 
 	<span tal:condition="python:user_type=='Individual'" >
-		  <tal:block define="global attachment nocall: context/reference;
+		  <tal:block define="global attachment nocall: context/reference_file;
 							   global size attachment/getSize | nothing;
 							   " />
 	  <tal:block tal:condition="python:size > 0" >
@@ -67,7 +68,7 @@
   
 	  <h5> Reference File:</h5>
 	  <div tal:condition="python:size > 0">
-		  <a tal:attributes="href string:${context/absolute_url}/@@download/reference/${attachment/filename}">
+		  <a tal:attributes="href string:${context/absolute_url}/@@download/reference_file/${attachment/filename}">
 					  <span tal:content="string:${attachment/filename}"/>  (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
 		  </a>
 		  </div>
