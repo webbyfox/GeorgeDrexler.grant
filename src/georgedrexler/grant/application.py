@@ -191,24 +191,31 @@ def validatecommercial(value):
 	
 @form.validator(field = IApplication['statement_text'])
 def validateStatementText(value):
-	"""	Validate Statement Text text area for Individual User
+	"""	Validate Statement textarea for Individual User
 	
 	"""
 	user = AuthenticatedUser()
 	if user.isIndividual() and not value:
-		raise Invalid(_(u"Dummy Message"))
+		raise Invalid(_(u"Please enter a personal statement"))
 
-# @form.validator(field = IApplication['reference_file'])
-# def validateReferenceFile(value):
-	# """	Validate reference file field
+@form.validator(field = IApplication['reference_file'])
+def validateReferenceFile(data):
+	"""	Validate reference file field
 	
-	# """
-	# import pdb; pdb.set_trace()
+	"""
+	user = AuthenticatedUser()
+	if user.isIndividual() and not data:
+		raise Invalid(_(u"Please attach a reference"))
+
+
+@form.validator(field = IApplication['statement_file'])
+def validateStatementFile(data):
+	"""	Validate statement file field
 	
-	# user = AuthenticatedUser()
-	# if user.isIndividual() and not value:
-		# raise Invalid(_(u"Dummy Message for ref"))
-	
+	"""
+	user = AuthenticatedUser()
+	if user.isMedicalSchool() and not data:
+		raise Invalid(_(u"Please attach a statement"))		
 	
 class AddForm(DefaultAddForm):	
     
