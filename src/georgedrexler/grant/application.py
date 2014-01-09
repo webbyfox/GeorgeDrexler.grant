@@ -39,7 +39,6 @@ from plone.dexterity.utils import addContentToContainer
 
 from AccessControl import getSecurityManager
 
-
 YNList = SimpleVocabulary(
 	[
 	SimpleTerm(value=None, title=_(u'')),
@@ -127,7 +126,7 @@ class IApplication(form.Schema):
 			)
 	
 	statement_file = NamedBlobFile(
-			title = _(u"Personal statement"),
+			title = _(u"Personal statement File"),
 			description = _(u"No more than two sides of A4 paper"),
 			required = False,
 			)
@@ -136,38 +135,59 @@ class IApplication(form.Schema):
 		title = _(u"Reference"),
         description = _(u"No more than two sides of A4 paper"),
         required = False,
-		)	
-	
+		)
+			
+			
 class AuthenticatedUser:
 	def __init__(self):
 		self.user = getSecurityManager().getUser()
 		if self.user:
-			self.user_type = self.user.getProperty('user_type').lower()
-		
+			self.user_type = self.user.getProperty('user_type')
+
+	# def getType(self):
+		# self.user = getSecurityManager().getUser()
+		# if self.user:
+			# self.user_type = self.user.getProperty('user_type')
+
+			
 	def isIndividual(self):
-		if self.user_type == 'Individual'.lower():
+		if self.user_type == 'Individual':
 			return True
 		return False
 
 	def isMedicalSchool(self):
-		if self.user_type == 'Medical School'.lower():
+		if self.user_type == 'Medical School':
 			return True
 		return False		
-		
-class Application_View(grok.View):
-    grok.context(IApplication)
-    grok.require('zope2.View')
-    grok.name('view')
-       
-    def canEdit(self):
-        if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
-           return True
-        return False
 	
-    def canSubmit(self):
-        if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
-           return True
-        return False
+	
+class Application_View(grok.View):
+	grok.context(IApplication)
+	grok.require('zope2.View')
+	grok.name('view')
+    
+	
+	def userIndividual(self):
+		auth_user = AuthenticatedUser()
+		if auth_user.isIndividual():
+			return True
+		return False
+		
+	def userMedicalSchool(self):
+		auth_user = AuthenticatedUser()
+		if auth_user.isMedicalSchool():
+			return True
+		return False
+		
+	def canEdit(self):
+		if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
+			return True
+		return False
+	
+	def canSubmit(self):
+		if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':	
+			return True
+		return False
 	
 @form.default_value(field = IExcludeFromNavigation['exclude_from_nav'])
 def excludeFromNavDefaultValue(data):
@@ -207,7 +227,6 @@ def validateReferenceFile(data):
 	if user.isIndividual() and not data:
 		raise Invalid(_(u"Please attach a reference"))
 
-
 @form.validator(field = IApplication['statement_file'])
 def validateStatementFile(data):
 	"""	Validate statement file field
@@ -216,6 +235,7 @@ def validateStatementFile(data):
 	user = AuthenticatedUser()
 	if user.isMedicalSchool() and not data:
 		raise Invalid(_(u"Please attach a statement"))		
+	
 	
 class AddForm(DefaultAddForm):	
     
@@ -255,37 +275,37 @@ class AddForm(DefaultAddForm):
 		notify(AddCancelledEvent(self.context))
 				
 	def updateWidgets(self):
+		
 		super(AddForm, self).updateWidgets()
-		user = AuthenticatedUser()
+		auth_user = AuthenticatedUser()
 
-		if user.isIndividual():
+		if auth_user.isIndividual():
 			self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
 
-		if user.isMedicalSchool():
+		if auth_user.isMedicalSchool():
 			self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
-			self.widgets["reference"].mode = interfaces.HIDDEN_MODE			 
+			self.widgets["reference_file"].mode = interfaces.HIDDEN_MODE			 
 
 	
-class EditForm(DefaultEditForm):
+class EditForm(dexterity.EditForm):
 	grok.context(IApplication)
+	
 	def updateWidgets(self):
-		super(EditForm, self).updateWidgets()
-		user = AuthenticatedUser()
-
-		if user.isIndividual():
+	
+		dexterity.EditForm.updateWidgets(self)
+		auth_user = AuthenticatedUser()
+		
+		if auth_user.isIndividual():
 			self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
 
-		if user.isMedicalSchool():
+		if auth_user.isMedicalSchool():
 			self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
-			self.widgets["reference"].mode = interfaces.HIDDEN_MODE			 
+			self.widgets["reference_file"].mode = interfaces.HIDDEN_MODE
 	
-				
-				
+
+		
 class AddView(DefaultAddView):
 	form = AddForm
 
-class EditView(DefaultEditView):
-	form = EditForm
-	
 	
 	

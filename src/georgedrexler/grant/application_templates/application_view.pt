@@ -12,8 +12,8 @@
 
   <br/><br/>
   
-  <tal:define define="global user_type python:context.REQUEST.AUTHENTICATED_USER.getProperty('user_type') ;
-                      global DateTime python:modules['DateTime'].DateTime" />
+  <tal:define define="global DateTime python:modules['DateTime'].DateTime" />
+
   
   <h5>Applicant Name:</h5> <p tal:content="string:${context/first_name}  ${context/surname}" /> 
   
@@ -33,11 +33,11 @@
   
   <h5>Details of all additional applications pending and awarded:</h5>  <p tal:content="context/detail_additional_app" />
 
-  <span tal:condition="python:user_type=='Individual'" >
+  <span tal:condition="view/userIndividual" >
 	<h5>Personal Statement:</h5>  <p tal:content="context/statement_text" />
   </span>
   
-  <span tal:condition="python:user_type=='Medical School'" >
+  <span tal:condition="view/userMedicalSchool" >
 	  <tal:block define="global attachment nocall: context/statement_file;
 							   global size attachment/getSize | nothing;
 							   " />
@@ -55,7 +55,7 @@
 		  </div>
 		  
 	</span> 
-	<span tal:condition="python:user_type=='Individual'" >
+	<span tal:condition="view/userIndividual" >
 		  <tal:block define="global attachment nocall: context/reference_file;
 							   global size attachment/getSize | nothing;
 							   " />
