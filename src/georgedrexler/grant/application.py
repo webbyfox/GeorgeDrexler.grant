@@ -161,6 +161,7 @@ class AuthenticatedUser:
 		return False		
 	
 	
+	
 class Application_View(grok.View):
 	grok.context(IApplication)
 	grok.require('zope2.View')
@@ -178,6 +179,10 @@ class Application_View(grok.View):
 		if auth_user.isMedicalSchool():
 			return True
 		return False
+		
+	def checkRole(self,role):
+		auth_user = AuthenticatedUser()
+		return role in auth_user.user.getRoles()
 		
 	def canEdit(self):
 		if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
@@ -235,12 +240,12 @@ def validateStatementFile(data):
 	user = AuthenticatedUser()
 	if user.isMedicalSchool() and not data:
 		raise Invalid(_(u"Please attach a statement"))		
-	
-	
+
+
+
 class AddForm(DefaultAddForm):	
-    
 	immediate_view = 'applying-for-funding/online-application'
-	
+
 	def add(self, object):
         
 		fti = getUtility(IDexterityFTI, name=self.portal_type)
@@ -275,10 +280,12 @@ class AddForm(DefaultAddForm):
 		notify(AddCancelledEvent(self.context))
 				
 	def updateWidgets(self):
-		
+		#exclude_from_nav = IExcludeFromNavigation['exclude_from_nav']
 		super(AddForm, self).updateWidgets()
 		auth_user = AuthenticatedUser()
-
+		#import pdb; pdb.set_trace()
+		#self.widgets[exclude_from_nav].mode = interfaces.HIDDEN_MODE	
+		
 		if auth_user.isIndividual():
 			self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
 
@@ -306,6 +313,4 @@ class EditForm(dexterity.EditForm):
 		
 class AddView(DefaultAddView):
 	form = AddForm
-
-	
 	

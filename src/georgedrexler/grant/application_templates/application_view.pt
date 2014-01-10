@@ -10,7 +10,7 @@
 <metal:main fill-slot="content-core">
 
 
-  <br/><br/>
+  
   
   <tal:define define="global DateTime python:modules['DateTime'].DateTime" />
 
@@ -33,11 +33,11 @@
   
   <h5>Details of all additional applications pending and awarded:</h5>  <p tal:content="context/detail_additional_app" />
 
-  <span tal:condition="view/userIndividual" >
+  <span tal:condition="python:view.checkRole('Manager') or  view.userIndividual" >
 	<h5>Personal Statement:</h5>  <p tal:content="context/statement_text" />
   </span>
-  
-  <span tal:condition="view/userMedicalSchool" >
+
+  <span tal:condition="python:view.checkRole('Manager') or  view.userMedicalSchool" >
 	  <tal:block define="global attachment nocall: context/statement_file;
 							   global size attachment/getSize | nothing;
 							   " />
@@ -55,7 +55,10 @@
 		  </div>
 		  
 	</span> 
-	<span tal:condition="view/userIndividual" >
+	
+
+	
+	<span tal:condition="python:view.checkRole('Manager') or view.userIndividual" >
 		  <tal:block define="global attachment nocall: context/reference_file;
 							   global size attachment/getSize | nothing;
 							   " />
