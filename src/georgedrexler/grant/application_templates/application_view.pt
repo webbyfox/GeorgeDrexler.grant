@@ -23,7 +23,7 @@
 		
   <h5>Address:</h5>
 		<p tal:condition="context/address" 
-		   tal:content="python:context.address.replace('\n','<br/>')" />
+		   tal:content="structure python:context.address.replace('\n','<br/>')" />
 		   
   <h5>Telephone:</h5>
 		<p tal:content="context/telephone" />
@@ -33,7 +33,7 @@
 		
   <h5>Education:</h5>  
 		<p tal:condition="context/education" 
-		   tal:content="python:context.education.replace('\n','<br/>')" />
+		   tal:content="structure python:context.education.replace('\n','<br/>')" />
   <h5>Course:</h5>  
 		<p tal:content="context/course" />
 		
@@ -51,15 +51,15 @@
 		
   <h5>Have you received a grant from us before?</h5>  
 		<p condition="context/previous_grant" 
-	               content="structure python:context.previous_grant.replace('\n','<br/>')" />
+	               content="structure python:context.previous_grant.replace('\n','<br>')" />
 				   
   <h5>If yes, give details. (Years received and amounts awarded):</h5>  
 		<p  tal:condition="context/received_grant_before"
-			tal:content="structure python:context.received_grant_before.replace('\n','<br/>')" />	
+			tal:content="structure python:context.received_grant_before.replace('\n','<br>')" />	
   
   <h5>Details of all additional applications pending and awarded:</h5>  
 		<p  tal:condition="context/detail_additional_app"
-			tal:content="structure python:context.detail_additional_app.replace('\n', '<br/>')" />
+			tal:content="structure python:context.detail_additional_app.replace('\n', '<br>')" />
 
   <span tal:condition="python:view.isMemberRole or view.userIndividual" >
 	<h5>Personal Statement:</h5>  <p tal:content="context/statement_text" />
