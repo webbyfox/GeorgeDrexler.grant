@@ -9,45 +9,72 @@
 
 <metal:main fill-slot="content-core">
 
-
-  
-  
   <tal:define define="global DateTime python:modules['DateTime'].DateTime" />
+  
+  <h5>Applicant Name:</h5>
+		<p tal:content="string:${context/first_name}  ${context/surname}" /> 
+  
+  <h5>Date of birth:</h5>
+		<p tal:condition="context/dob"
+		   tal:content="python:DateTime(str(context.dob)).strftime('%d %B %Y')" /> 
+		   
+  <h5>Are you a UK citizen?</h5>  
+		<p tal:content="context/citizen" />
+		
+  <h5>Address:</h5>
+		<p tal:condition="context/address" 
+		   tal:content="python:context.address.replace('\n','<br/>')" />
+		   
+  <h5>Telephone:</h5>
+		<p tal:content="context/telephone" />
+		
+  <h5>Email:</h5>  
+		<p tal:content="context/email" /><br/>
+		
+  <h5>Education:</h5>  
+		<p tal:condition="context/education" 
+		   tal:content="python:context.education.replace('\n','<br/>')" />
+  <h5>Course:</h5>  
+		<p tal:content="context/course" />
+		
+  <h5>Institution:</h5> 
+		<p tal:content="context/institution" />
+		
+  <h5>Commencement:</h5>  
+		<p tal:content="context/commencement" />
+		
+  <h5>Value sought:</h5> 
+		<p tal:content="context/value_sought" />
+		
+  <h5>Commercial Link:</h5>  
+		<p tal:content="context/commercial" />
+		
+  <h5>Have you received a grant from us before?</h5>  
+		<p condition="context/previous_grant" 
+	               content="structure python:context.previous_grant.replace('\n','<br/>')" />
+				   
+  <h5>If yes, give details. (Years received and amounts awarded):</h5>  
+		<p  tal:condition="context/received_grant_before"
+			tal:content="structure python:context.received_grant_before.replace('\n','<br/>')" />	
+  
+  <h5>Details of all additional applications pending and awarded:</h5>  
+		<p  tal:condition="context/detail_additional_app"
+			tal:content="structure python:context.detail_additional_app.replace('\n', '<br/>')" />
 
-  
-  <h5>Applicant Name:</h5> <p tal:content="string:${context/first_name}  ${context/surname}" /> 
-  
-  <h5>Date of birth:</h5>  <p tal:content="python:DateTime(str(context.dob)).strftime('%d %B %Y')" /> 
-  <h5>Are you a UK citizen?</h5>  <p tal:content="context/citizen" />
-  <h5>Address:</h5>  <p tal:content="context/address" />
-  <h5>Telephone:</h5>  <p tal:content="context/telephone" />
-  <h5>Email:</h5>  <p tal:content="context/email" /><br/>
-  <h5>Education:</h5>  <p tal:content="context/education" />
-  <h5>Course:</h5>  <p tal:content="context/course" /><br/>
-  <h5>Institution:</h5>  <p tal:content="context/institution" />
-  <h5>Commencement:</h5>  <p tal:content="context/commencement" />
-  <h5>Value sought:</h5>  <p tal:content="context/value_sought" />
-  <h5>Commercial Link:</h5>  <p tal:content="context/commercial" />
-  <h5>Have you received a grant from us before?</h5>  <tal:content content="context/previous_grant" />
-  <h5>If yes, give details. (Years received and amounts awarded):</h5>  <p tal:content="context/received_grant_before" />	
-  
-  <h5>Details of all additional applications pending and awarded:</h5>  <p tal:content="context/detail_additional_app" />
-
-  <span tal:condition="python:view.checkRole('Manager') or  view.userIndividual" >
+  <span tal:condition="python:view.isMemberRole or view.userIndividual" >
 	<h5>Personal Statement:</h5>  <p tal:content="context/statement_text" />
   </span>
 
-  <span tal:condition="python:view.checkRole('Manager') or  view.userMedicalSchool" >
+  <span tal:condition="python:view.isMemberRole or view.userMedicalSchool" >
 	  <tal:block define="global attachment nocall: context/statement_file;
-							   global size attachment/getSize | nothing;
-							   " />
+							   global size attachment/getSize | nothing; " />
+	  
 	  <tal:block tal:condition="python:size > 0" >
 		<tal:mime tal:define="global mimeType python:context.lookupMime(attachment.contentType) or nothing;"/>
 	  </tal:block>  
-	  
-	  
+	    
 
-	  <h5>Personal Statement File:</h5>
+  <h5>Personal Statement File:</h5>
 	  <div tal:condition="python:size > 0">
 		  <a tal:attributes="href string:${context/absolute_url}/@@download/statement_file/${attachment/filename}">
 					  <span tal:content="string:${attachment/filename}"/> (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
@@ -58,7 +85,7 @@
 	
 
 	
-	<span tal:condition="python:view.checkRole('Manager') or view.userIndividual" >
+	<span tal:condition="python:view.isMemberRole or view.userIndividual" >
 		  <tal:block define="global attachment nocall: context/reference_file;
 							   global size attachment/getSize | nothing;
 							   " />
@@ -67,9 +94,7 @@
 	  </tal:block>  
 	  <br/>
 
-  
-  
-	  <h5> Reference File:</h5>
+    <h5> Reference File:</h5>
 	  <div tal:condition="python:size > 0">
 		  <a tal:attributes="href string:${context/absolute_url}/@@download/reference_file/${attachment/filename}">
 					  <span tal:content="string:${attachment/filename}"/>  (<tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
