@@ -136,7 +136,7 @@ class IApplication(form.Schema):
         description = _(u"No more than two sides of A4 paper"),
         required = False,
 		)
-			
+
 			
 class AuthenticatedUser:
 	def __init__(self):
@@ -180,9 +180,14 @@ class Application_View(grok.View):
 			return True
 		return False
 		
-	def checkRole(self,role):
-		auth_user = AuthenticatedUser()
-		return role in auth_user.user.getRoles()
+	def isMemberRole(self):
+		self.role_list = ['Editor', 'Reviewer', 'Manager']
+		if portal.portal_membership.isAnonymousUser():
+			return False
+		for role in self.role_list:
+			if portal.portal_membership.getAuthenticatedMember().has_role(role):
+				return False
+		return True
 		
 	def canEdit(self):
 		if self.context.portal_workflow.getInfoFor(self.context,'review_state') == 'private':
@@ -283,8 +288,17 @@ class AddForm(DefaultAddForm):
 		#exclude_from_nav = IExcludeFromNavigation['exclude_from_nav']
 		super(AddForm, self).updateWidgets()
 		auth_user = AuthenticatedUser()
-		#import pdb; pdb.set_trace()
-		#self.widgets[exclude_from_nav].mode = interfaces.HIDDEN_MODE	
+
+		field_list = {	
+				'education':8,
+				'statement_text':20,
+		        'detail_additional_app':10,
+				'received_grant_before':10,
+			 }		
+
+					  
+		for key,value in field_list.iteritems():
+		  	self.widgets[key].rows = value
 		
 		if auth_user.isIndividual():
 			self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
@@ -301,6 +315,18 @@ class EditForm(dexterity.EditForm):
 	
 		dexterity.EditForm.updateWidgets(self)
 		auth_user = AuthenticatedUser()
+		
+		field_list = {	
+				'education':8,
+				'statement_text':20,
+		        'detail_additional_app':10,
+				'received_grant_before':10,
+			 }		
+
+					  
+		for key,value in field_list.iteritems():
+		  	self.widgets[key].rows = value
+
 		
 		if auth_user.isIndividual():
 			self.widgets["statement_file"].mode = interfaces.HIDDEN_MODE
