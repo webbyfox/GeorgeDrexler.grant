@@ -23,7 +23,7 @@
 		
   <h5>Address:</h5>
 		<p tal:condition="context/address" 
-		   tal:content="structure python:context.address.replace('\n','<br/>')" />
+		   tal:content="structure python:context.address.replace('\n','<br>')" />
 		   
   <h5>Telephone:</h5>
 		<p tal:content="context/telephone" />
@@ -33,7 +33,7 @@
 		
   <h5>Education:</h5>  
 		<p tal:condition="context/education" 
-		   tal:content="structure python:context.education.replace('\n','<br/>')" />
+		   tal:content="structure python:context.education.replace('\n','<br>')" />
   <h5>Course:</h5>  
 		<p tal:content="context/course" />
 		
