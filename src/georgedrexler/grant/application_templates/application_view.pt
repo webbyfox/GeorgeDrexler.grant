@@ -62,7 +62,7 @@
 			tal:content="structure python:context.detail_additional_app.replace('\n', '<br>')" />
 
   <span tal:condition="python:view.isMemberRole or view.userIndividual" >
-	<h5>Personal Statement:</h5>  <p tal:content="context/statement_text" />
+	<h5>Personal Statement:</h5>  <p tal:condition="context/statement_text" tal:content="structure python:context.statement_text.replace('\n', '<br>')" />
   </span>
 
   <span tal:condition="python:view.isMemberRole or view.userMedicalSchool" >
