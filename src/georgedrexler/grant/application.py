@@ -24,11 +24,9 @@ from Acquisition import aq_inner, aq_base
 from plone.app.content.interfaces import INameFromTitle
 from rwproperty import getproperty, setproperty
 from zope.interface import implements, Interface
-from zope.component import adapts
-from zope.component import getUtility, createObject
+from zope.component import adapts, getUtility, createObject
 import z3c.form 
-from z3c.form import field, button
-from z3c.form import interfaces
+from z3c.form import field, button, interfaces
 from DateTime import DateTime
 from zope.interface import Invalid
 from Products.CMFCore.utils import getToolByName
@@ -233,8 +231,7 @@ def validateReferenceFile(data):
 	"""	Validate reference file field
 	
 	"""
-	user = AuthenticatedUser()
-	if user.isIndividual() and not data:
+	if not data:
 		raise Invalid(_(u"Please attach a reference"))
 
 @form.validator(field = IApplication['statement_file'])
@@ -305,8 +302,7 @@ class AddForm(DefaultAddForm):
 
 		if auth_user.isMedicalSchool():
 			self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
-			self.widgets["reference_file"].mode = interfaces.HIDDEN_MODE			 
-
+		
 	
 class EditForm(dexterity.EditForm):
 	grok.context(IApplication)
@@ -333,8 +329,7 @@ class EditForm(dexterity.EditForm):
 
 		if auth_user.isMedicalSchool():
 			self.widgets["statement_text"].mode = interfaces.HIDDEN_MODE
-			self.widgets["reference_file"].mode = interfaces.HIDDEN_MODE
-	
+		
 
 		
 class AddView(DefaultAddView):
